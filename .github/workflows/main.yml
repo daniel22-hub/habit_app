@@ -10,44 +10,43 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
 
-      # 1. Configurar Java 17 (VITAL para evitar errores de Gradle)
+      # 1. Java 17 (Requerido para compilar en Android actualmente)
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      # 2. Configurar Python
+      # 2. Python 3.10 (Muy estable)
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
-      # 3. Configurar Flutter (Versión estable específica)
+      # 3. Flutter (Usamos 'stable' para tener la última versión y evitar que Flet pida actualizar)
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.19.0' 
-
-      # 4. Instalar dependencias de Python
-      - name: Install Python Dependencies
+          
+      # 4. Instalar Flet
+      - name: Install Dependencies
         run: |
-          pip install --upgrade pip
           pip install -r requirements.txt
           pip install flet
 
-      # 5. Construir el APK (Añadimos --verbose para ver errores si falla)
+      # 5. Construir APK con el "Truco Linux" (Auto-aceptar preguntas)
+      # El símbolo '|' (pipe) pasa la "y" al comando flet build
       - name: Build APK
         run: |
-          flet build apk --verbose
+          yes | flet build apk --verbose
 
-      # 6. Subir el APK generado
-      - name: Upload APK
+      # 6. Subir el archivo
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: habit-tracker-app
+          name: habit-tracker-apk
           path: build/apk/app-release.apk

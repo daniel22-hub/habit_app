@@ -10,31 +10,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # 1. Descargar tu código
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+      # 2. Instalar Python
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
-    - name: Install Dependencies
-      run: |
-        pip install -r requirements.txt
-        pip install flet
+      # 3. Instalar Flutter (Necesario para construir la app)
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.19.x'
 
-    - name: Setup Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.22.x' # Versión estable reciente
-        channel: 'stable'
+      # 4. Instalar Flet y sus herramientas de construcción
+      - name: Install Dependencies
+        run: |
+          pip install -r requirements.txt
+          flet --version
 
-    - name: Flet Build APK
-      run: |
-        flet build apk --verbose
+      # 5. Construir el APK (Con logs detallados para ver errores)
+      - name: Build APK
+        run: |
+          flet build apk --verbose
 
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: habit-tracker-app
-        path: build/app/outputs/flutter-apk/app-release.apk
+      # 6. Subir el archivo APK generado (Ruta corregida)
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: habit-tracker-app
+          path: build/apk/*.apk
